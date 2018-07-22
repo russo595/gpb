@@ -1,17 +1,6 @@
 package org.rustem;
 
-import lombok.extern.slf4j.Slf4j;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
+import org.rustem.utils.RandomUtils;
 
 /**
  * Напишите программу, которая создает текстовый файл, содержащий дату, время, номер точки продаж, номер операции и сумму операции.
@@ -24,27 +13,13 @@ import java.util.stream.Stream;
  * java -jar task1.jar offices.txt 90000 operations.txt
  */
 
-@Slf4j
 public class MainApp {
-
-    private static final String OFFICES = "offices.txt";
-
     public static void main(String[] args) {
-        MainApp app = new MainApp();
-        URL resource = app.getClassLoader().getResource(OFFICES);
-        List<String> listOffices = new ArrayList<>();
-        if (resource != null) {
 
-            try (Stream<String> stream = Files.lines(Paths.get(resource.getPath()))) {
-                stream.forEach(listOffices::add);
-            } catch (IOException e) {
-                log.error("IOException during to parsing offices.txt", e);
-            }
+        if (args != null) {
+            System.out.println(RandomUtils.getRandomOffice2());
+        } else {
+            System.out.println(RandomUtils.getRandomOffice());
         }
     }
-
-    public ClassLoader getClassLoader() {
-        return this.getClass().getClassLoader();
-    }
 }
-
