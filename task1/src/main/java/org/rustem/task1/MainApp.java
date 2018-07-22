@@ -1,6 +1,6 @@
-package org.rustem;
+package org.rustem.task1;
 
-import org.rustem.utils.RandomUtils;
+import org.rustem.task1.utils.RandomUtils;
 
 /**
  * Напишите программу, которая создает текстовый файл, содержащий дату, время, номер точки продаж, номер операции и сумму операции.
