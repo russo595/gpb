@@ -1,8 +1,8 @@
-package org.rustem.task1;
+package org.rustem;
 
 import lombok.extern.slf4j.Slf4j;
-import org.rustem.task1.utils.RandomUtils;
-import org.rustem.task1.utils.RandomUtilsImpl;
+import org.rustem.utils.RandomUtils;
+import org.rustem.utils.RandomUtilsImpl;
 
 import java.io.IOException;
 import java.nio.charset.Charset;

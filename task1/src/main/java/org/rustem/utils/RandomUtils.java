@@ -1,4 +1,4 @@
-package org.rustem.task1.utils;
+package org.rustem.utils;
 
 public interface RandomUtils {
 

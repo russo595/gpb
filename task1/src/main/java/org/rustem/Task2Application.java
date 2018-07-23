@@ -1,7 +1,9 @@
-package org.rustem.task1;
+package org.rustem;
 
 public class Task2Application {
+
+
     public static void main(String[] args) {
-        System.out.println("HELLO");
+        System.out.println();
     }
 }
