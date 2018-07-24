@@ -7,7 +7,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.*;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Stream;
@@ -60,12 +59,10 @@ public class RandomUtilsImpl implements RandomUtils {
     }
 
     /**
-     * Сумма операции — случайное значение в диапазоне от 10 000,00 до 100 000,00 рублей.
+     * Сумма операции — случайное значение в диапазоне от 10000,00 до 100000,00 рублей.
      */
     public String getRandomSumOperation() {
-        NumberFormat numberFormat = NumberFormat.getInstance();
-        numberFormat.setMaximumFractionDigits(2);
-        return numberFormat.format(createRandomBetween(10000d, 100000d));
+        return String.format("%.2f", createRandomBetween(10000d, 100000d));
     }
 
     public String getRandomOffice() {
@@ -109,13 +106,15 @@ public class RandomUtilsImpl implements RandomUtils {
             log.error("IOException during to parsing offices.txt", e);
         }
 
-        final long index = createRandomBetween(0L, listOffices.size() - 1L);
-
-        return listOffices.get((int) index);
+        return listOffices.get(createRandomBetween(listOffices.size() - 1));
     }
 
     private static long createRandomBetween(long start, long end) {
         return start + (long) (Math.random() * (end - start) + 1);
+    }
+
+    private static int createRandomBetween(int end) {
+        return new Random().nextInt(end + 1);
     }
 
     private static double createRandomBetween(double start, double end) {

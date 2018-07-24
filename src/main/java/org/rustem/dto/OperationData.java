@@ -1,16 +1,19 @@
 package org.rustem.dto;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
 public class OperationData {
-    private String date;
+    private Date date;
     private String salesPointNumber;
     private String numOperation;
-    private String sumOperation;
+    private BigDecimal sumOperation;
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public OperationData withDate(String date) {
+    public OperationData withDate(Date date) {
         this.date = date;
         return this;
     }
@@ -33,11 +36,11 @@ public class OperationData {
         return this;
     }
 
-    public String getSumOperation() {
+    public BigDecimal getSumOperation() {
         return sumOperation;
     }
 
-    public OperationData withSumOperation(String sumOperation) {
+    public OperationData withSumOperation(BigDecimal sumOperation) {
         this.sumOperation = sumOperation;
         return this;
     }
