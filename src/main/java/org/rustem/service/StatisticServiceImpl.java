@@ -1,7 +1,8 @@
 package org.rustem.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.rustem.dto.OperationData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -24,8 +25,9 @@ import static java.nio.file.StandardOpenOption.CREATE;
 import static org.rustem.utils.DateUtils.stringDate;
 import static org.rustem.utils.DateUtils.toDate;
 
-@Slf4j
 public class StatisticServiceImpl implements StatisticService {
+
+    private static final Logger log = LoggerFactory.getLogger(StatisticServiceImpl.class);
 
     private static final String EMPTY = "";
     private static final String REGEX = "\\|";
@@ -37,21 +39,19 @@ public class StatisticServiceImpl implements StatisticService {
     private static final String ERROR_PARSING_DATE = "Ошибка парсинга даты";
     private static final String CHARSET_UTF = "UTF-8";
     private static final String IO_EXCEPTION = "Ошибка записи в файл";
-    private String operationTXT;
     private String sumsByDatesTXT;
     private String sumsByOfficesTXT;
 
-    private OperationData data;
+    private static OperationData data;
 
     public StatisticServiceImpl(String[] args) {
-        operationTXT = args.length != 0 && args[0] != null ? args[0] : "operations.txt";
-        sumsByDatesTXT = args.length != 0 && args[1] != null ? args[1] : "sums-by-dates.txt";
-        sumsByOfficesTXT = args.length != 0 && args[2] != null ? args[2] : "sums-by-offices.txt";
+        sumsByDatesTXT = args.length > 1 && args[1] != null ? args[1] : "sums-by-dates.txt";
+        sumsByOfficesTXT = args.length > 2 && args[2] != null ? args[2] : "sums-by-offices.txt";
     }
 
     @Override
-    public void groupByDay() {
-        Map<Date, BigDecimal> dataGroupByDay = convertedDate().stream()
+    public void groupByDay(List<OperationData> statistic) {
+        Map<Date, BigDecimal> dataGroupByDay = statistic.stream()
                 .collect(Collectors.groupingBy(
                         OperationData::getDate,
                         Collectors.reducing(
@@ -68,13 +68,14 @@ public class StatisticServiceImpl implements StatisticService {
 
         try {
             Files.write(Paths.get(sumsByDatesTXT), listSumOperationsByDay, Charset.forName(CHARSET_UTF), CREATE, APPEND);
+            log.info("Data uploaded to file {}", sumsByDatesTXT);
         } catch (IOException e) {
             log.error(IO_EXCEPTION, e);
         }
     }
 
-    public void groupBySalesPoint() {
-        Map<String, BigDecimal> dataGroupByDay = convertedDate().stream()
+    public void groupBySalesPoint(List<OperationData> statistic) {
+        Map<String, BigDecimal> dataGroupByDay = statistic.stream()
                 .collect(Collectors.groupingBy(
                         OperationData::getSalesPointNumber,
                         Collectors.reducing(
@@ -89,16 +90,16 @@ public class StatisticServiceImpl implements StatisticService {
 
         try {
             Files.write(Paths.get(sumsByOfficesTXT), listSumOperationsByDay, Charset.forName("windows-1251"), CREATE, APPEND);
+            log.info("Data uploaded to file {}", sumsByOfficesTXT);
         } catch (IOException e) {
             log.error(IO_EXCEPTION, e);
         }
     }
 
-    private List<OperationData> getFullStatistic() {
-        String path = operationTXT;
-        List<OperationData> operationDataList = null;
+    private static List<OperationData> getFullStatistic(String resourceFile) {
+        List<OperationData> operationDataList = new ArrayList<>();
 
-        try (FileInputStream fis = new FileInputStream(path);
+        try (FileInputStream fis = new FileInputStream(resourceFile);
              BufferedReader in = new BufferedReader(new InputStreamReader(fis))) {
             Stream<String> lines = in.lines();
             operationDataList = lines.filter(s -> !s.equals(EMPTY)).map(mapToOperationDataFromFile())
@@ -111,7 +112,7 @@ public class StatisticServiceImpl implements StatisticService {
         return operationDataList;
     }
 
-    private Function<String, OperationData> mapToOperationDataFromFile() {
+    private static Function<String, OperationData> mapToOperationDataFromFile() {
         return s -> {
             data = new OperationData();
             String[] split = s.split(REGEX);
@@ -123,7 +124,7 @@ public class StatisticServiceImpl implements StatisticService {
         };
     }
 
-    private Consumer<OperationData> operationDataWithoutSymbols() {
+    private static Consumer<OperationData> operationDataWithoutSymbols() {
         return operationData -> operationData
                 .withDate(operationData.getDate())
                 .withSalesPointNumber(operationData.getSalesPointNumber().replaceAll(REGEX_SYMB, EMPTY).replaceAll(REGEX_TAB, EMPTY))
@@ -131,8 +132,8 @@ public class StatisticServiceImpl implements StatisticService {
                 .withSumOperation(operationData.getSumOperation());
     }
 
-    private List<OperationData> convertedDate() {
-        return getFullStatistic().stream()
+    public static List<OperationData> getFullStatisticWithConvertedDate(String resourceFile) {
+        return getFullStatistic(resourceFile).stream()
                 .peek(operationData -> {
                     try {
                         SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);

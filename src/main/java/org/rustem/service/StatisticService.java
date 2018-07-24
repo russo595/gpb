@@ -1,7 +1,11 @@
 package org.rustem.service;
 
-public interface StatisticService {
-    void groupByDay();
+import org.rustem.dto.OperationData;
 
-    void groupBySalesPoint();
+import java.util.List;
+
+public interface StatisticService {
+    void groupByDay(List<OperationData> statistic);
+
+    void groupBySalesPoint(List<OperationData> statistic);
 }
