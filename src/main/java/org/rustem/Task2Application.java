@@ -1,28 +1,36 @@
 package org.rustem;
 
 import org.rustem.dto.OperationData;
-import org.rustem.service.StatisticServiceImpl;
+import org.rustem.service.StatisticService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 import java.util.List;
 
 import static org.rustem.service.StatisticServiceImpl.getFullStatisticWithConvertedDate;
 
+@SpringBootApplication
 public class Task2Application {
 
     private static final String OFFICES = "operations.txt";
-    private StatisticServiceImpl statisticServiceImpl;
 
-    private Task2Application(String[] args) {
-        this.statisticServiceImpl = new StatisticServiceImpl(args);
-    }
+
+    @Autowired
+    private StatisticService statisticService;
 
     public static void main(String[] args) {
-        new Task2Application(args).run(args.length != 0 && args[0] != null ? args[0] : OFFICES);
+        SpringApplication.run(Task2Application.class, args);
     }
 
-    private void run(String resourceFile) {
-        List<OperationData> statistic = getFullStatisticWithConvertedDate(resourceFile);
-        statisticServiceImpl.groupByDay(statistic);
-        statisticServiceImpl.groupBySalesPoint(statistic);
+    @Bean
+    public CommandLineRunner commandLineRunner() {
+        return args -> {
+            List<OperationData> statistic = getFullStatisticWithConvertedDate(args.length != 0 && args[0] != null ? args[0] : OFFICES);
+            statisticService.groupByDay(statistic);
+            statisticService.groupBySalesPoint(statistic);
+        };
     }
 }

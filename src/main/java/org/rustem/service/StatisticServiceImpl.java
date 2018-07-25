@@ -3,6 +3,7 @@ package org.rustem.service;
 import org.rustem.dto.OperationData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -22,6 +23,7 @@ import static java.nio.file.StandardOpenOption.CREATE;
 import static org.rustem.utils.DateUtils.stringDate;
 import static org.rustem.utils.DateUtils.toDate;
 
+@Service
 public class StatisticServiceImpl implements StatisticService {
 
     private static final Logger log = LoggerFactory.getLogger(StatisticServiceImpl.class);
@@ -36,14 +38,14 @@ public class StatisticServiceImpl implements StatisticService {
     private static final String ERROR_PARSING_DATE = "Ошибка парсинга даты";
     private static final String CHARSET_UTF = "UTF-8";
     private static final String IO_EXCEPTION = "Ошибка записи в файл";
-    private String sumsByDatesTXT;
-    private String sumsByOfficesTXT;
+    private String sumsByDatesTXT = "sums-by-dates.txt";
+    private String sumsByOfficesTXT = "sums-by-offices.txt";
 
     private static OperationData data;
 
-    public StatisticServiceImpl(String[] args) {
-        sumsByDatesTXT = args.length > 1 && args[1] != null ? args[1] : "sums-by-dates.txt";
-        sumsByOfficesTXT = args.length > 2 && args[2] != null ? args[2] : "sums-by-offices.txt";
+    public StatisticServiceImpl() {
+//        sumsByDatesTXT = args.length > 1 && args[1] != null ? args[1] : "sums-by-dates.txt";
+//        sumsByOfficesTXT = args.length > 2 && args[2] != null ? args[2] : "sums-by-offices.txt";
     }
 
     /**
