@@ -4,10 +4,7 @@ import org.rustem.dto.OperationData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -49,6 +46,11 @@ public class StatisticServiceImpl implements StatisticService {
         sumsByOfficesTXT = args.length > 2 && args[2] != null ? args[2] : "sums-by-offices.txt";
     }
 
+    /**
+     * Группировка по датам и вывод отсортированной статистики по возрастанию дат
+     *
+     * @param statistic список с полной статистикой операций
+     */
     @Override
     public void groupByDay(List<OperationData> statistic) {
         Map<Date, BigDecimal> dataGroupByDay = statistic.stream()
@@ -74,6 +76,11 @@ public class StatisticServiceImpl implements StatisticService {
         }
     }
 
+    /**
+     * Группировка по точкам продаж и вывод отсортированной статистики по убыванию суммы
+     *
+     * @param statistic список с полной статистикой операций
+     */
     public void groupBySalesPoint(List<OperationData> statistic) {
         Map<String, BigDecimal> dataGroupByDay = statistic.stream()
                 .collect(Collectors.groupingBy(
@@ -89,19 +96,23 @@ public class StatisticServiceImpl implements StatisticService {
                 .collect(Collectors.toList());
 
         try {
-            Files.write(Paths.get(sumsByOfficesTXT), listSumOperationsByDay, Charset.forName("windows-1251"), CREATE, APPEND);
+            Files.write(Paths.get(sumsByOfficesTXT), listSumOperationsByDay, Charset.forName(CHARSET_UTF), CREATE, APPEND);
             log.info("Data uploaded to file {}", sumsByOfficesTXT);
         } catch (IOException e) {
             log.error(IO_EXCEPTION, e);
         }
     }
 
+    /**
+     * Метод для получения полной статистики
+     *
+     * @param resourceFile ресурный файл где хранится полная статистика
+     * @return список состоящий из объектов OperationData
+     */
     private static List<OperationData> getFullStatistic(String resourceFile) {
         List<OperationData> operationDataList = new ArrayList<>();
 
-        try (FileInputStream fis = new FileInputStream(resourceFile);
-             BufferedReader in = new BufferedReader(new InputStreamReader(fis))) {
-            Stream<String> lines = in.lines();
+        try (Stream<String> lines = Files.lines(Paths.get(resourceFile))) {
             operationDataList = lines.filter(s -> !s.equals(EMPTY)).map(mapToOperationDataFromFile())
                     .peek(operationDataWithoutSymbols())
                     .collect(Collectors.toList());
@@ -112,6 +123,9 @@ public class StatisticServiceImpl implements StatisticService {
         return operationDataList;
     }
 
+    /**
+     * Метод для перекладки данных из файла в объект OperationData
+     */
     private static Function<String, OperationData> mapToOperationDataFromFile() {
         return s -> {
             data = new OperationData();
@@ -124,6 +138,9 @@ public class StatisticServiceImpl implements StatisticService {
         };
     }
 
+    /**
+     * Метод для удаления лишних символов при парсинге строки ("|", "\n", "\t")
+     */
     private static Consumer<OperationData> operationDataWithoutSymbols() {
         return operationData -> operationData
                 .withDate(operationData.getDate())
@@ -132,6 +149,12 @@ public class StatisticServiceImpl implements StatisticService {
                 .withSumOperation(operationData.getSumOperation());
     }
 
+    /**
+     * Метод для получения полной статистики имеющий формат даты dd.MM.yyyy
+     *
+     * @param resourceFile ресурный файл где хранится полная статистика
+     * @return список состоящий из объектов OperationData с форматом даты dd.MM.yyyy
+     */
     public static List<OperationData> getFullStatisticWithConvertedDate(String resourceFile) {
         return getFullStatistic(resourceFile).stream()
                 .peek(operationData -> {

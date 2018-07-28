@@ -30,12 +30,13 @@ public class Task1Application {
         if (args != null && args.length != 0) {
             Integer quantity = Integer.valueOf(args[1]);
             try { // блок для запуска программы из jar файла
+                List<String> list = new ArrayList<>();
+
                 for (int num = 0; num < quantity; num++) {
-                    String randomData = getRandomData(args[0], num);
-                    List<String> list = new ArrayList<>();
-                    list.add(randomData);
-                    Files.write(Paths.get(args[2]), list, Charset.forName(CHARSET_UTF), CREATE, APPEND);
+                    list.add(getRandomData(args[0], num));
                 }
+
+                Files.write(Paths.get(args[2]), list, Charset.forName(CHARSET_UTF), CREATE, APPEND);
                 log.info("Data uploaded to file {}", args[2]);
             } catch (IOException e) {
                 log.error(IO_EXCEPTION, e);

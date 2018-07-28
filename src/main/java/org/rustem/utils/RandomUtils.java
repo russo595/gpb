@@ -31,11 +31,11 @@ public class RandomUtils {
     }
 
     public static String getRandomData(String file, int num) {
-        return String.format("%s\t |\t%s\t |\t%s\t |\t%s%n", createRandomDate(), getRandomOffice(file), num, getRandomSumOperation());
+        return String.format("%s\t |\t%s\t |\t%s\t |\t%s", createRandomDate(), getRandomOffice(file), num, getRandomSumOperation());
     }
 
     /**
-     * Формат вывода даты 01.01.2017 00:00
+     * Формат вывода даты dd.MM.yyyy HH:mm
      */
     private static String createRandomDate() {
         LocalDateTime localStart = LocalDateTime.of(LocalDateTime.now().getYear() - 1, Month.JANUARY, 1, 0, 0);
