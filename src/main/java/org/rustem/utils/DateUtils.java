@@ -2,6 +2,7 @@ package org.rustem.utils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class DateUtils {
@@ -17,11 +18,15 @@ public class DateUtils {
     private static final String REGEX = "\\d{2}.\\d{2}.\\d{4}";
 
     public static String stringDate(LocalDate date) {
-        return date.format(DateTimeFormatter.ofPattern(DATE_FORMAT));
+        return Optional.ofNullable(date)
+                .orElseThrow(() -> new NullPointerException("Date is not must be null"))
+                .format(DateTimeFormatter.ofPattern(DATE_FORMAT));
     }
 
     public static LocalDate toDate(String date) {
-        date = date.replace(REGEX_TAB, EMPTY).trim();
+        date = Optional.ofNullable(date)
+                .orElseThrow(() -> new NullPointerException("Date is not must be null"))
+                .replace(REGEX_TAB, EMPTY).trim();
         DateTimeFormatter formatter;
         Pattern p = Pattern.compile(REGEX);
         if (p.matcher(date).matches()) {
