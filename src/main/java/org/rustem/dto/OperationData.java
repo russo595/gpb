@@ -1,19 +1,19 @@
 package org.rustem.dto;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
 
 public class OperationData {
-    private Date date;
+    private LocalDate date;
     private String salesPointNumber;
     private String numOperation;
     private BigDecimal sumOperation;
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public OperationData withDate(Date date) {
+    public OperationData withDate(LocalDate date) {
         this.date = date;
         return this;
     }

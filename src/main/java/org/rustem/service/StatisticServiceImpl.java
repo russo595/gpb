@@ -9,9 +9,13 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -53,7 +57,7 @@ public class StatisticServiceImpl implements StatisticService {
      */
     @Override
     public void groupByDay(List<OperationData> statistic) {
-        Map<Date, BigDecimal> dataGroupByDay = statistic.stream()
+        Map<LocalDate, BigDecimal> dataGroupByDay = statistic.stream()
                 .collect(Collectors.groupingBy(
                         OperationData::getDate,
                         Collectors.reducing(
@@ -62,10 +66,10 @@ public class StatisticServiceImpl implements StatisticService {
                                 BigDecimal::add)))
                 .entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        TreeMap<Date, BigDecimal> sortedData = new TreeMap<>(dataGroupByDay);
+        TreeMap<LocalDate, BigDecimal> sortedData = new TreeMap<>(dataGroupByDay);
 
         List<String> listSumOperationsByDay = sortedData.entrySet().stream().
-                map(dateDoubleEntry -> String.format("%s\t|\t%s", stringDate(dateDoubleEntry.getKey()), dateDoubleEntry.getValue().toString()))
+                map(entry -> String.format("%s\t|\t%s", stringDate(entry.getKey()), entry.getValue().toString()))
                 .collect(Collectors.toList());
 
         try {
@@ -91,8 +95,9 @@ public class StatisticServiceImpl implements StatisticService {
                                 BigDecimal::add)))
                 .entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        List<String> listSumOperationsByDay = dataGroupByDay.entrySet().stream().
-                map(dateDoubleEntry -> String.format("%s\t|\t%s", dateDoubleEntry.getKey(), dateDoubleEntry.getValue().toString()))
+        List<String> listSumOperationsByDay = dataGroupByDay.entrySet().stream()
+                .sorted(Map.Entry.<String, BigDecimal>comparingByValue().reversed())
+                .map(entry -> String.format("%s\t|\t%s", entry.getKey(), entry.getValue().toString()))
                 .collect(Collectors.toList());
 
         try {
@@ -158,13 +163,14 @@ public class StatisticServiceImpl implements StatisticService {
     public static List<OperationData> getFullStatisticWithConvertedDate(String resourceFile) {
         return getFullStatistic(resourceFile).stream()
                 .peek(operationData -> {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
+                    LocalDate date = null;
                     try {
-                        SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
-                        Date date = format.parse(stringDate(operationData.getDate()));
-                        operationData.withDate(toDate(format.format(date)));
-                    } catch (ParseException e) {
+                        date = LocalDate.parse(stringDate(operationData.getDate()), formatter);
+                    } catch (DateTimeParseException e) {
                         log.error(ERROR_PARSING_DATE, e);
                     }
+                    operationData.withDate(date);
                 }).collect(Collectors.toList());
     }
 }

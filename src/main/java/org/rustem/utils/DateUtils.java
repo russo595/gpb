@@ -1,35 +1,35 @@
 package org.rustem.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.regex.Pattern;
 
 public class DateUtils {
 
-    private static final Logger log = LoggerFactory.getLogger(DateUtils.class);
+    private static final String REGEX_TAB = "\t";
+    private static final String EMPTY = "";
 
     private DateUtils() {
     }
 
     private static final String DATE_FORMAT = "dd.MM.yyyy";
-    private static final String ERROR_PARSING_DATE = "Ошибка парсинга даты";
+    private static final String DATE_TIME_FORMAT = "dd.MM.yyyy HH:mm";
+    private static final String REGEX = "\\d{2}.\\d{2}.\\d{4}";
 
-    public static String stringDate(Date date) {
-        SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
-        return format.format(date);
+    public static String stringDate(LocalDate date) {
+        return date.format(DateTimeFormatter.ofPattern(DATE_FORMAT));
     }
 
-    public static Date toDate(String date) {
-        SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
-        Date parsedDate = null;
-        try {
-            parsedDate = format.parse(date.replace("\t", ""));
-        } catch (ParseException e) {
-            log.error(ERROR_PARSING_DATE, e);
+    public static LocalDate toDate(String date) {
+        date = date.replace(REGEX_TAB, EMPTY).trim();
+        DateTimeFormatter formatter;
+        Pattern p = Pattern.compile(REGEX);
+        if (p.matcher(date).matches()) {
+            formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
+        } else {
+            formatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
         }
-        return parsedDate;
+
+        return LocalDate.parse(date, formatter);
     }
 }

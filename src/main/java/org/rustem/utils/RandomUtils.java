@@ -68,9 +68,9 @@ public class RandomUtils {
                 log.error("IOException during to parsing offices.txt", e);
             }
         }
-        final long index = createRandomBetween(0L, listOffices.size() - 1L);
+        int index = createRandomBetween(listOffices.size() - 1);
 
-        return listOffices.get((int) index);
+        return listOffices.get(index);
     }
 
     private static String getRandomOffice(String file) {
